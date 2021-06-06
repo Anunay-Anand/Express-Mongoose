@@ -1,5 +1,5 @@
 //We still fetch all the packages 
-const mongoose = require('mongooose');
+const mongoose = require('mongoose');
 
 //Creating Model named Product
 
@@ -16,6 +16,7 @@ const productSchema = new mongoose.Schema({
     },
     category: {
         type: String,
+        lowercase: true, //So that if we enter caps it automatically takes lower(error prevention)
         enum: ["fruit", "vegetable", "dairy"]
     }
 })
@@ -23,3 +24,6 @@ const productSchema = new mongoose.Schema({
 //Create Class or collection from Schema
 
 const Product = mongoose.model('Product', productSchema);
+
+//Exporting the Product class as an object
+module.exports = Product;
