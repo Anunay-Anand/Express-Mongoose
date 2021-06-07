@@ -2,6 +2,7 @@
 const express = require('express');
 const app = express();
 const path = require('path');
+const methodOverride = require('method-override');
 
 //Fetching all models of developer created modules
 const Product = require('./models/product');
@@ -21,6 +22,7 @@ mongoose.connect('mongodb://localhost:27017/farmStand', {useNewUrlParser: true, 
 //making ejs are default view engine
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({extended:true}));
+app.use(methodOverride('_method'));
 
 //Setting path of views and public folder
 app.set('views', path.join(__dirname, 'views'));
@@ -58,6 +60,23 @@ app.get('/products/:id', async (req, res) => {
     const product = await Product.findById(id);
     res.render('products/details.ejs', {product: product});
 });
+
+//Edit Route
+app.get('/products/:id/edit', async (req, res) => {
+    const { id } = req.params;
+    //Fetch the product details with the help of ID
+    const product = await Product.findById(id);    
+    res.render('products/edit.ejs', {product: product});
+});
+
+//Update Route
+app.put('/products/:id', async (req, res) => {
+    const { id } = req.params;
+    //Update using mongoose 
+    const product = await Product.findByIdAndUpdate(id, req.body, {runValidators: true, new: true});
+    //We won't have access to product._id if we didn't fetch successfully
+    res.redirect(`/products/${product._id}`);
+}); 
 
 //Creating or starting our server
 app.listen(3000, () => {
