@@ -27,6 +27,9 @@ app.use(methodOverride('_method'));
 //Setting path of views and public folder
 app.set('views', path.join(__dirname, 'views'));
 
+//All categories
+const categories = ['fruit', 'vegetable', 'dairy'];
+
 //Creating Routes
 
 //Index Route
@@ -40,7 +43,7 @@ app.get('/products', async (req, res) => {
 
 //New Route
 app.get('/products/new', (req, res) => {
-    res.render('products/new.ejs');
+    res.render('products/new.ejs', {categories: categories});
 });
 
 //Create Route (POST)
@@ -66,7 +69,7 @@ app.get('/products/:id/edit', async (req, res) => {
     const { id } = req.params;
     //Fetch the product details with the help of ID
     const product = await Product.findById(id);    
-    res.render('products/edit.ejs', {product: product});
+    res.render('products/edit.ejs', {product: product, categories: categories});
 });
 
 //Update Route
