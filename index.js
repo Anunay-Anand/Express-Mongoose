@@ -20,6 +20,7 @@ mongoose.connect('mongodb://localhost:27017/farmStand', {useNewUrlParser: true, 
 
 //making ejs are default view engine
 app.set('view engine', 'ejs');
+app.use(express.urlencoded({extended:true}));
 
 //Setting path of views and public folder
 app.set('views', path.join(__dirname, 'views'));
@@ -33,6 +34,21 @@ app.get('/products', async (req, res) => {
     //Locating to the products folder containing it's ejs files
     //Pass all the products found as second parameter
     res.render('products/index.ejs', {products: products});
+});
+
+//New Route
+app.get('/products/new', (req, res) => {
+    res.render('products/new.ejs');
+});
+
+//Create Route (POST)
+
+app.post('/products', async (req, res) => {
+    //Creating new instance from Product class
+    const newProduct = new Product(req.body);
+    await newProduct.save();
+    console.log(newProduct);
+    res.redirect(`/products/${newProduct._id}`);
 });
 
 //Show Route
