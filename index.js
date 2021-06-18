@@ -5,7 +5,8 @@ const path = require('path');
 const methodOverride = require('method-override');
 
 //Fetching all models of developer created modules
-const Product = require('./models/product');
+const Product = require('./models/product.js');
+const AppError = require('./AppError.js');
 
 //Fetching mongoose
 const mongoose = require('mongoose');
@@ -58,27 +59,36 @@ app.get('/products', async (req, res) => {
 
 //New Route
 app.get('/products/new', (req, res) => {
+    // throw new AppError('Not allowed', 401);
     res.render('products/new.ejs', {
         categories: categories
     });
 });
 
 //Create Route (POST)
-app.post('/products', async (req, res) => {
+app.post('/products', async (req, res, next) => {
+    try{
     //Creating new instance from Product class
     const newProduct = new Product(req.body);
     await newProduct.save();
-    console.log(newProduct);
     res.redirect(`/products/${newProduct._id}`);
+    }
+    catch(e){
+        next(e);
+    }
 });
 
 //Show Route
-app.get('/products/:id', async (req, res) => {
+app.get('/products/:id', async (req, res, next) => {
     const {
         id
     } = req.params;
     //Find the particular product by Id
     const product = await Product.findById(id);
+    //Check for async Error using if and next()
+    if(!product) {
+        next(new AppError('The product was not found', 404));
+    }
     res.render('products/details.ejs', {
         product: product
     });
@@ -119,6 +129,12 @@ app.delete('/products/:id', async (req, res) => {
     } = req.params;
     const deletedProduct = await Product.findByIdAndDelete(id);
     res.redirect('/products');
+});
+
+//Custom Error handling middleware
+app.use((err, req, res, next) => {
+    const { status = 500, message = 'There was some Error' } = err;
+    res.status(status).send(message);
 });
 
 //Creating or starting our server
