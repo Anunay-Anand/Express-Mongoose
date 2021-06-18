@@ -6,6 +6,7 @@ const methodOverride = require('method-override');
 
 //Fetching all models of developer created modules
 const Product = require('./models/product.js');
+const Farm = require('./models/farm.js');
 const AppError = require('./AppError.js');
 
 //Fetching mongoose
@@ -36,8 +37,30 @@ app.set('views', path.join(__dirname, 'views'));
 //All categories
 const categories = ['fruit', 'vegetable', 'dairy'];
 
-//Creating Routes
+// After learning populate and reference how to link two models and collection 
 
+//Farm Route
+//Index Route Farm
+app.get('/farms', async(req, res) => {
+    const farms = await Farm.find({}); 
+    res.render('farms/index.ejs', {farms: farms});
+});
+
+//Create Route
+app.get('/farms/new', (req, res, next) => {
+    res.render('farms/new.ejs');
+});
+//Create Route (end point)
+app.post('/farms', async (req, res, next) => {
+    const farm = new Farm({...req.body});
+    const newFarm = await farm.save();
+    console.log(newFarm);
+    res.redirect('/farms');
+});
+
+//Product Route
+
+//Creating Routes
 //Index Route
 app.get('/products', async (req, res) => {
     //Check if category string passed
