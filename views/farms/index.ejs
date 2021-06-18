@@ -14,11 +14,11 @@
     <!--Each product is a document of collection-->
     <ul>
         <% for(let farm of farms){%>
-        <li><%=farm.name%></li>
+        <li><a href='/farms/<%=farm._id%>'><%=farm.name%></a></li>
         <% } %>
     </ul>
     <!--New Farm-->
-    <a href="farms/new">Add a Farm</a>
+    <a href="/farms/new">Add a Farm</a>
 </body>
 
 </html>

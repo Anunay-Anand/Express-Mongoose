@@ -50,6 +50,7 @@ app.get('/farms', async(req, res) => {
 app.get('/farms/new', (req, res, next) => {
     res.render('farms/new.ejs');
 });
+
 //Create Route (end point)
 app.post('/farms', async (req, res, next) => {
     const farm = new Farm({...req.body});
@@ -58,7 +59,39 @@ app.post('/farms', async (req, res, next) => {
     res.redirect('/farms');
 });
 
+//Show Route 
+app.get('/farms/:id', async (req, res, next) => {
+    // const { id } = req.params;
+    const farm = await Farm.findById(req.params.id).populate('products');
+    console.log(farm);
+    res.render('farms/show', { farm: farm });
+});
+
 //Product Route
+
+//Create Route 
+app.get('/farms/:id/products/new', async (req, res) => {
+    const { id } = req.params;
+    const farm = await Farm.findById(id);
+    res.render('products/new', {categories, id, farm});
+});
+
+//Create Route (End Point)
+app.post('/farms/:id/products', async (req, res, next) => {
+    //Fetch farm from ID so that we can populate it or insert the product Id 
+    const { id } = req.params;
+    const farm = await Farm.findById(id);
+    //Create Product with the req.body
+    const product = new Product({...req.body});
+    //Pusing the product into farm (it will automatically only show id)
+    farm.products.push(product);
+    //Also store the farm Id in product
+    product.farm = farm;
+    //Save both of them for changes to be saved
+    await farm.save();
+    await product.save();
+    res.redirect(`/farms/${farm._id}`);
+});
 
 //Creating Routes
 //Index Route
@@ -107,7 +140,7 @@ app.get('/products/:id', async (req, res, next) => {
         id
     } = req.params;
     //Find the particular product by Id
-    const product = await Product.findById(id);
+    const product = await Product.findById(id).populate('farm', 'name');
     //Check for async Error using if and next()
     if(!product) {
         next(new AppError('The product was not found', 404));
