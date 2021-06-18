@@ -24,6 +24,9 @@
     <a href="/farms">All farms</a>
     <!--Create Product-->
     <a href="/farms/<%=farm._id%>/products/new">Add Product</a>
+    <form action="/farms/<%=farm._id%>?_method=delete" method="POST">
+        <button type="submit">Delete</button>
+    </form>
 </body>
 
 </html>

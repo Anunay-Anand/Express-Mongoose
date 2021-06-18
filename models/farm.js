@@ -1,19 +1,10 @@
 const mongoose = require('mongoose');
+//Fetching product model
+const Product = require('./product.js');
+
 const {
     Schema
 } = mongoose;
-//After the url we always add the database name and 27017 is default port
-mongoose.connect('mongodb://localhost:27017/farmStand', {
-        useNewUrlParser: true,
-        useUnifiedTopology: true
-    })
-    .then(() => {
-        console.log("Mongo Connection Open!!");
-    })
-    .catch(err => {
-        console.log("OHH Noo Mongo Connection Error!");
-        console.log(err);
-    });
 
 //Creating a farm Schema 
 
@@ -33,6 +24,17 @@ const farmSchema = Schema({
         type: Schema.Types.ObjectId,
         ref: 'Product'
     }]
+});
+
+//passing Model middleware
+//Here we say specify the query for which middleware is activated for this model
+farmSchema.post('findOneAndDelete', async function(farm){
+    //Check if there are any products in deleted farm
+    if(farm.products.length) {
+        //delete all products whose id is in farm.prodcuts
+        const res = await Product.deleteMany({_id: {$in: farm.products}});
+        console.log(res);
+    }
 });
 
 //Creating Model from FarmSchema
